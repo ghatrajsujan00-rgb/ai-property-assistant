@@ -18,6 +18,10 @@ function App() {
   const [lookupResult, setLookupResult] = useState(null)
   const [lookupMessage, setLookupMessage] = useState('')
 
+  const [chatQuestion, setChatQuestion] = useState('')
+  const [chatAnswer, setChatAnswer] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+
   const fetchProperties = async () => {
     setLoading(true)
 
@@ -110,6 +114,32 @@ function App() {
       console.error('Error retrieving booking:', error)
       setLookupMessage('Could not retrieve booking. Please check the backend server.')
     }
+  }
+
+  const askChatbot = async (event) => {
+    event.preventDefault()
+    setChatAnswer('')
+    setChatLoading(true)
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: chatQuestion
+        })
+      })
+
+      const data = await response.json()
+      setChatAnswer(data.answer)
+    } catch (error) {
+      console.error('Error asking chatbot:', error)
+      setChatAnswer('Sorry, the chatbot could not connect to the backend.')
+    }
+
+    setChatLoading(false)
   }
 
   return (
@@ -245,6 +275,33 @@ function App() {
         )}
       </section>
 
+      <section className="chatbot-section" id="chatbot">
+        <h2>AI Property Chatbot</h2>
+        <p>
+          Ask a question about properties, inspection bookings, or suburb information.
+        </p>
+
+        <form className="chatbot-form" onSubmit={askChatbot}>
+          <textarea
+            placeholder="Example: Which property is available in Parramatta?"
+            value={chatQuestion}
+            onChange={(event) => setChatQuestion(event.target.value)}
+            required
+          />
+
+          <button type="submit">Ask Chatbot</button>
+        </form>
+
+        {chatLoading && <p>Thinking...</p>}
+
+        {chatAnswer && (
+          <div className="chatbot-answer">
+            <h3>Chatbot Response</h3>
+            <p>{chatAnswer}</p>
+          </div>
+        )}
+      </section>
+
       <section className="features">
         <div className="feature-card">
           <h3>Smart Recommendations</h3>
@@ -262,11 +319,11 @@ function App() {
           </p>
         </div>
 
-        <div className="feature-card" id="chatbot">
+        <div className="feature-card">
           <h3>RAG AI Chatbot</h3>
           <p>
-            The chatbot will use Amazon Bedrock Knowledge Bases to answer
-            questions from property documents and suburb information.
+            The chatbot currently connects to the backend mock API. Later, it
+            can be connected with Amazon Bedrock Knowledge Bases for RAG.
           </p>
         </div>
       </section>

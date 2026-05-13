@@ -259,3 +259,47 @@ button:hover {
   color: #b91c1c;
   font-weight: bold;
 }
+.chatbot-section {
+  background: white;
+  margin: 20px 8% 50px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.07);
+  text-align: center;
+}
+
+.chatbot-section h2 {
+  color: #111827;
+  margin-top: 0;
+}
+
+.chatbot-form {
+  max-width: 620px;
+  margin: 24px auto 0;
+  display: grid;
+  gap: 14px;
+}
+
+.chatbot-form textarea {
+  min-height: 120px;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.chatbot-answer {
+  max-width: 620px;
+  margin: 24px auto 0;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f9fafb;
+  text-align: left;
+}
+
+.chatbot-answer h3 {
+  color: #2563eb;
+  text-align: center;
+}
