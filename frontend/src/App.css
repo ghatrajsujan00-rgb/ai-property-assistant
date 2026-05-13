@@ -179,3 +179,36 @@ button:hover {
     grid-template-columns: 1fr;
   }
 }
+.booking-section {
+  background: white;
+  margin: 20px 8% 50px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.07);
+  text-align: center;
+}
+
+.booking-section h2 {
+  color: #111827;
+  margin-top: 0;
+}
+
+.booking-form {
+  max-width: 520px;
+  margin: 24px auto 0;
+  display: grid;
+  gap: 14px;
+}
+
+.booking-form input {
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.booking-message {
+  margin-top: 18px;
+  color: #047857;
+  font-weight: bold;
+}

@@ -4,6 +4,15 @@ import './App.css'
 function App() {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(false)
+  const [selectedProperty, setSelectedProperty] = useState(null)
+  const [bookingMessage, setBookingMessage] = useState('')
+
+  const [bookingForm, setBookingForm] = useState({
+    name: '',
+    email: '',
+    preferred_date: '',
+    preferred_time: ''
+  })
 
   const fetchProperties = async () => {
     setLoading(true)
@@ -22,6 +31,62 @@ function App() {
   useEffect(() => {
     fetchProperties()
   }, [])
+
+  const openBookingForm = (property) => {
+    setSelectedProperty(property)
+    setBookingMessage('')
+  }
+
+  const handleBookingChange = (event) => {
+    const { name, value } = event.target
+
+    setBookingForm({
+      ...bookingForm,
+      [name]: value
+    })
+  }
+
+  const submitBooking = async (event) => {
+    event.preventDefault()
+
+    if (!selectedProperty) {
+      return
+    }
+
+    const bookingData = {
+      name: bookingForm.name,
+      email: bookingForm.email,
+      property_id: selectedProperty.id,
+      preferred_date: bookingForm.preferred_date,
+      preferred_time: bookingForm.preferred_time
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bookingData)
+      })
+
+      const data = await response.json()
+
+      setBookingMessage(
+        `Booking confirmed. Your booking ID is ${data.booking.booking_id}.`
+      )
+
+      setBookingForm({
+        name: '',
+        email: '',
+        preferred_date: '',
+        preferred_time: ''
+      })
+    } catch (error) {
+      console.error('Error creating booking:', error)
+      setBookingMessage('Booking failed. Please check the backend server.')
+    }
+  }
 
   return (
     <div className="app">
@@ -67,11 +132,62 @@ function App() {
               <p><strong>Bedrooms:</strong> {property.bedrooms}</p>
               <p><strong>Price:</strong> ${property.price_per_week} per week</p>
               <p><strong>Status:</strong> {property.status}</p>
-              <button>Book Inspection</button>
+              <button onClick={() => openBookingForm(property)}>
+                Book Inspection
+              </button>
             </div>
           ))}
         </div>
       </section>
+
+      {selectedProperty && (
+        <section className="booking-section" id="booking">
+          <h2>Book Inspection</h2>
+          <p>
+            Selected property: <strong>{selectedProperty.title}</strong>
+          </p>
+
+          <form className="booking-form" onSubmit={submitBooking}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Your full name"
+              value={bookingForm.name}
+              onChange={handleBookingChange}
+              required
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Your email address"
+              value={bookingForm.email}
+              onChange={handleBookingChange}
+              required
+            />
+
+            <input
+              type="date"
+              name="preferred_date"
+              value={bookingForm.preferred_date}
+              onChange={handleBookingChange}
+              required
+            />
+
+            <input
+              type="time"
+              name="preferred_time"
+              value={bookingForm.preferred_time}
+              onChange={handleBookingChange}
+              required
+            />
+
+            <button type="submit">Confirm Booking</button>
+          </form>
+
+          {bookingMessage && <p className="booking-message">{bookingMessage}</p>}
+        </section>
+      )}
 
       <section className="features">
         <div className="feature-card">
@@ -82,7 +198,7 @@ function App() {
           </p>
         </div>
 
-        <div className="feature-card" id="booking">
+        <div className="feature-card">
           <h3>Inspection Booking</h3>
           <p>
             Users can book an inspection appointment and later retrieve their
