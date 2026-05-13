@@ -14,6 +14,10 @@ function App() {
     preferred_time: ''
   })
 
+  const [lookupId, setLookupId] = useState('')
+  const [lookupResult, setLookupResult] = useState(null)
+  const [lookupMessage, setLookupMessage] = useState('')
+
   const fetchProperties = async () => {
     setLoading(true)
 
@@ -88,6 +92,26 @@ function App() {
     }
   }
 
+  const retrieveBooking = async (event) => {
+    event.preventDefault()
+    setLookupResult(null)
+    setLookupMessage('')
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/bookings/${lookupId}`)
+      const data = await response.json()
+
+      if (data.message === 'Booking not found') {
+        setLookupMessage('Booking not found. Please check the booking ID.')
+      } else {
+        setLookupResult(data)
+      }
+    } catch (error) {
+      console.error('Error retrieving booking:', error)
+      setLookupMessage('Could not retrieve booking. Please check the backend server.')
+    }
+  }
+
   return (
     <div className="app">
       <header className="navbar">
@@ -95,6 +119,7 @@ function App() {
         <nav>
           <a href="#search">Search</a>
           <a href="#booking">Book Inspection</a>
+          <a href="#lookup">Retrieve Booking</a>
           <a href="#chatbot">AI Chatbot</a>
         </nav>
       </header>
@@ -188,6 +213,37 @@ function App() {
           {bookingMessage && <p className="booking-message">{bookingMessage}</p>}
         </section>
       )}
+
+      <section className="lookup-section" id="lookup">
+        <h2>Retrieve Booking Details</h2>
+        <p>Enter your booking ID to check your inspection booking details.</p>
+
+        <form className="lookup-form" onSubmit={retrieveBooking}>
+          <input
+            type="number"
+            placeholder="Enter booking ID e.g. 1"
+            value={lookupId}
+            onChange={(event) => setLookupId(event.target.value)}
+            required
+          />
+          <button type="submit">Retrieve Booking</button>
+        </form>
+
+        {lookupMessage && <p className="lookup-message">{lookupMessage}</p>}
+
+        {lookupResult && (
+          <div className="lookup-result">
+            <h3>Booking Details</h3>
+            <p><strong>Booking ID:</strong> {lookupResult.booking_id}</p>
+            <p><strong>Name:</strong> {lookupResult.name}</p>
+            <p><strong>Email:</strong> {lookupResult.email}</p>
+            <p><strong>Property ID:</strong> {lookupResult.property_id}</p>
+            <p><strong>Date:</strong> {lookupResult.preferred_date}</p>
+            <p><strong>Time:</strong> {lookupResult.preferred_time}</p>
+            <p><strong>Status:</strong> {lookupResult.status}</p>
+          </div>
+        )}
+      </section>
 
       <section className="features">
         <div className="feature-card">
