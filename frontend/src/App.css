@@ -141,3 +141,41 @@ button:hover {
     padding: 20px 6% 50px;
   }
 }
+.property-section {
+  padding: 20px 8% 50px;
+}
+
+.property-section h2 {
+  text-align: center;
+  margin-bottom: 28px;
+  color: #111827;
+}
+
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.property-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.property-card h3 {
+  color: #2563eb;
+  margin-top: 0;
+}
+
+.property-card p {
+  color: #374151;
+  line-height: 1.5;
+}
+
+@media (max-width: 800px) {
+  .property-grid {
+    grid-template-columns: 1fr;
+  }
+}
