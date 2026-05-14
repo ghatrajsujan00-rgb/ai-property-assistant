@@ -7,6 +7,12 @@ function App() {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [bookingMessage, setBookingMessage] = useState('')
 
+  const [searchForm, setSearchForm] = useState({
+    location: '',
+    property_type: '',
+    max_budget: ''
+  })
+
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
@@ -40,6 +46,56 @@ function App() {
     fetchProperties()
   }, [])
 
+ const searchProperties = async (event) => {
+  event.preventDefault()
+  setLoading(true)
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/properties')
+    const data = await response.json()
+
+    const locationInput = searchForm.location.trim().toLowerCase()
+    const typeInput = searchForm.property_type.trim().toLowerCase()
+    const budgetInput = searchForm.max_budget
+
+    const filteredProperties = data.filter((property) => {
+      const propertyLocation = property.location.toLowerCase()
+      const propertyType = property.type.toLowerCase()
+      const propertyTitle = property.title.toLowerCase()
+      const propertyPrice = Number(property.price_per_week)
+
+      const matchesLocation =
+        locationInput === '' ||
+        propertyLocation.includes(locationInput) ||
+        propertyTitle.includes(locationInput)
+
+      const matchesType =
+        typeInput === '' ||
+        propertyType.includes(typeInput) ||
+        propertyTitle.includes(typeInput)
+
+      const matchesBudget =
+        budgetInput === '' ||
+        propertyPrice <= Number(budgetInput)
+
+      return matchesLocation && matchesType && matchesBudget
+    })
+
+    setProperties(filteredProperties)
+  } catch (error) {
+    console.error('Error searching properties:', error)
+  }
+
+  setLoading(false)
+}
+const handleSearchChange = (event) => {
+  const { name, value } = event.target
+
+  setSearchForm({
+    ...searchForm,
+    [name]: value
+  })
+}
   const openBookingForm = (property) => {
     setSelectedProperty(property)
     setBookingMessage('')
@@ -108,6 +164,7 @@ function App() {
       if (data.message === 'Booking not found') {
         setLookupMessage('Booking not found. Please check the booking ID.')
       } else {
+        
         setLookupResult(data)
       }
     } catch (error) {
@@ -161,22 +218,48 @@ function App() {
             Search properties to buy or rent, get smart recommendations,
             book inspections, and ask questions using an AI-powered assistant.
           </p>
-          <button onClick={fetchProperties}>Load Property Listings</button>
+          <button onClick={fetchProperties}>Load All Property Listings</button>
         </div>
 
-        <div className="search-card" id="search">
+        <form className="search-card" id="search" onSubmit={searchProperties}>
           <h2>Property Search</h2>
-          <input type="text" placeholder="Location e.g. Sydney, Parramatta" />
-          <input type="text" placeholder="Property type e.g. apartment, house" />
-          <input type="text" placeholder="Budget e.g. $700 per week" />
-          <button onClick={fetchProperties}>Search Properties</button>
-        </div>
+
+          <input
+            type="text"
+            name="location"
+            placeholder="Location e.g. Sydney, Parramatta"
+            value={searchForm.location}
+            onChange={handleSearchChange}
+          />
+
+          <input
+            type="text"
+            name="property_type"
+            placeholder="Property type e.g. Apartment, House, Unit"
+            value={searchForm.property_type}
+            onChange={handleSearchChange}
+          />
+
+          <input
+            type="number"
+            name="max_budget"
+            placeholder="Maximum budget e.g. 700"
+            value={searchForm.max_budget}
+            onChange={handleSearchChange}
+          />
+
+          <button type="submit">Search Properties</button>
+        </form>
       </section>
 
       <section className="property-section">
         <h2>Available Properties from Backend API</h2>
 
         {loading && <p>Loading properties...</p>}
+
+        {!loading && properties.length === 0 && (
+          <p>No matching properties found. Try another search.</p>
+        )}
 
         <div className="property-grid">
           {properties.map((property) => (
